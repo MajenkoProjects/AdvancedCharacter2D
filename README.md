@@ -88,5 +88,5 @@ Feel free to learn from this code though.....
 Contributing
 ============
 
-Contributions (through Github pull requests) and contributions (find me on the Pirate Software #Godot Discord channel) are more than welcome. I am pretty new
+Contributions (through Github pull requests) and suggestions (find me on the Pirate Software #Godot Discord channel) are more than welcome. I am pretty new
 to Godot and there are lots of things that I don't yet quite understand, so this is a learning project for me as well.
