@@ -84,3 +84,9 @@ THIS IS ONLY A WORK IN PROGRESS AT THE MOMENT. DON'T EXPECT IT TO ACTUALLY WORK,
 OR TO KEEP WORKING IN THE SAME WAY. THINGS ARE BOUND TO CHANGE AS THE CODE EVOLVES.
 
 Feel free to learn from this code though.....
+
+Contributing
+============
+
+Contributions (through Github pull requests) and contributions (find me on the Pirate Software #Godot Discord channel) are more than welcome. I am pretty new
+to Godot and there are lots of things that I don't yet quite understand, so this is a learning project for me as well.
