@@ -1,0 +1,3 @@
+[submodule "TheMissingClass"]
+	path = TheMissingClass
+	url = git@github.com:MajenkoProjects/TheMissingClass.git

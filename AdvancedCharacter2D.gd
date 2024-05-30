@@ -1,3 +1,31 @@
+# Copyright 2024 Majenko Technologies
+#
+# Redistribution and use in source and binary forms, with or without 
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, 
+#    this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+#    may be used to endorse or promote products derived from this software 
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# THE POSSIBILITY OF SUCH DAMAGE.
+
 @tool
 extends CharacterBody2D
 class_name AdvancedCharacter2D
@@ -74,17 +102,6 @@ var _audio_action : AudioStreamPlayer
 var _audio_vocal : AudioStreamPlayer
 
 var _collision_shape : CollisionShape2D
-
-class BitField:
-	var value : int = 0
-	func bit_set(b : int, v : bool = true) -> void:
-		if v:
-			value |= (1 << b)
-		else:
-			value &= ~(1 << b)
-	func is_set(b) -> bool:
-		return (value & (1 << b)) == (1 << b)
-
 
 enum PlayerActions { WALK, RUN, CRAWL, JUMP, FALL, ATTACK, LONGFALL }
 
@@ -163,11 +180,11 @@ func _physics_process(delta: float) -> void:
 
 		if _direction == Vector2.ZERO:
 			_speed = 0
-			_state.bit_set(PlayerActions.WALK, false)
+			_state.clear_bit(PlayerActions.WALK)
 		else:
-			_state.bit_set(PlayerActions.WALK)
-			_state.bit_set(PlayerActions.RUN, is_run)
-			_state.bit_set(PlayerActions.CRAWL, is_crawl)
+			_state.set_bit(PlayerActions.WALK)
+			_state.set_bit(PlayerActions.RUN, is_run)
+			_state.set_bit(PlayerActions.CRAWL, is_crawl)
 			if is_run:
 				_speed = RunSpeed
 			elif is_crawl:
@@ -179,7 +196,7 @@ func _physics_process(delta: float) -> void:
 			if Input.is_action_just_pressed(Jump):
 				print("JUMP!!!")
 				_audio_movement.stop()
-				_state.bit_set(PlayerActions.JUMP)
+				_state.set_bit(PlayerActions.JUMP)
 				velocity.y -= JumpPower
 				_jump_position = global_position
 				_jump_speed = _speed
@@ -207,11 +224,11 @@ func _physics_process(delta: float) -> void:
 		if not is_on_floor():
 			if _state.is_set(PlayerActions.JUMP):
 				if global_position.y > _jump_position.y:
-					_state.bit_set(PlayerActions.JUMP, false)
-					_state.bit_set(PlayerActions.FALL)
+					_state.clear_bit(PlayerActions.JUMP)
+					_state.set_bit(PlayerActions.FALL)
 					_audio_movement.stop()
 			else:
-				_state.bit_set(PlayerActions.FALL)
+				_state.set_bit(PlayerActions.FALL)
 				_audio_movement.stop()
 
 		var _starting_velocity = velocity
@@ -224,7 +241,7 @@ func _physics_process(delta: float) -> void:
 		var restart_animation : bool = false
 		if Input.is_action_just_pressed(Attack):
 			print("ATTACK!!!")
-			_state.bit_set(PlayerActions.ATTACK)
+			_state.set_bit(PlayerActions.ATTACK)
 			#_attack_ray.enabled = true
 				
 			if _facing.x < 0:
@@ -318,12 +335,12 @@ func _physics_process(delta: float) -> void:
 
 
 		if is_on_floor() and _state.is_set(PlayerActions.JUMP):
-			_state.bit_set(PlayerActions.JUMP, false)
+			_state.clear_bit(PlayerActions.JUMP)
 
 		if _state.is_set(PlayerActions.FALL):
 			if is_on_floor():
-				_state.bit_set(PlayerActions.FALL, false)
-				_state.bit_set(PlayerActions.LONGFALL, false)
+				_state.clear_bit(PlayerActions.FALL)
+				_state.clear_bit(PlayerActions.LONGFALL)
 				if _starting_velocity.y > FallSoundThreshold: 
 					print("Landed %d" % _starting_velocity.y)
 					_audio_vocal.stream = LandingSound
@@ -331,7 +348,7 @@ func _physics_process(delta: float) -> void:
 			else:
 				if _starting_velocity.y > FallSoundThreshold:
 					if not _state.is_set(PlayerActions.LONGFALL):
-						_state.bit_set(PlayerActions.LONGFALL)
+						_state.set_bit(PlayerActions.LONGFALL)
 						if _facing.x < 0:
 							var action = get_action_by_type(AdvancedCharacter2DMovement.MovementType.FALL_LEFT)
 							_audio_vocal.stream = action.AudioFile
@@ -418,8 +435,6 @@ func _on_hitbox_updated(resource : Resource) -> void:
 
 func _animation_finished() -> void:
 	print("Animation finished %s" % AnimatedSprite.animation)
-	#if _state.is_set(PlayerActions.ATTACK):
-		#_state.bit_set(PlayerActions.ATTACK, false)
 
 func _update_sprite_preview() -> void:
 	var action = Actions[EditorAction]
@@ -438,5 +453,5 @@ func _animation_duration(name : String) -> float:
 
 func _attack_finished() -> void:
 	print("Attack finished")
-	_state.bit_set(PlayerActions.ATTACK, false)
+	_state.clear_bit(PlayerActions.ATTACK)
 	#_attack_ray.enabled = false
